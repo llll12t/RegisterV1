@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบสมาชิก | Member Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="Config.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'pulse-slow': 'pulse 3s infinite'
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen font-sans">
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-white flex items-center justify-center z-50">
+        <div class="text-center">
+            <div class="relative w-20 h-20 mx-auto mb-6">
+                <div class="absolute inset-0 rounded-full border-4 border-gray-200"></div>
+                <div class="absolute inset-0 rounded-full border-4 border-black border-t-transparent animate-spin">
+                </div>
+            </div>
+            <p class="text-gray-600 text-lg font-medium">กำลังโหลด...</p>
+            <p class="text-gray-400 text-sm mt-1">กรุณารอสักครู่</p>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-md">
+
+            <!-- Header Card -->
+            <div id="header-card" class="bg-white rounded-2xl shadow-lg p-6 mb-4 animate-fade-in hidden">
+                <div class="flex items-center gap-4">
+                    <div class="relative">
+                        <img id="profileImage" src="" alt="Profile"
+                            class="w-16 h-16 rounded-full object-cover border-4 border-gray-100 shadow-md">
+                        <div
+                            class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white">
+                        </div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm text-gray-400">สวัสดี</p>
+                        <h1 id="displayName" class="text-xl font-bold text-gray-900 truncate">Loading...</h1>
+                        <p id="userId" class="text-xs text-gray-400 truncate mt-0.5"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Register Section -->
+            <div id="register-section" class="hidden animate-slide-up">
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <div class="bg-gradient-to-r from-gray-900 to-gray-700 p-6 text-center">
+                        <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="2"
+                                viewBox="0 0 24 24">
+                                <path
+                                    d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                            </svg>
+                        </div>
+                        <h2 class="text-xl font-bold text-white">ลงทะเบียนสมาชิก</h2>
+                        <p class="text-gray-300 text-sm mt-1">กรอกข้อมูลเพื่อเข้าร่วมเป็นสมาชิก</p>
+                    </div>
+
+                    <form id="register-form" class="p-6 space-y-5">
+                        <!-- Image Upload -->
+                        <div class="flex items-center gap-4">
+                            <div class="relative group">
+                                <img id="preview" src="" alt="Preview"
+                                    class="w-20 h-20 rounded-xl object-cover bg-gray-100 border-2 border-dashed border-gray-300 group-hover:border-black transition-colors">
+                                <label for="file"
+                                    class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-xl opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2"
+                                        viewBox="0 0 24 24">
+                                        <path
+                                            d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                        <path d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                </label>
+                                <input type="file" id="file" accept="image/*" class="hidden">
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-700">รูปโปรไฟล์</p>
+                                <p class="text-xs text-gray-400 mt-0.5">คลิกเพื่อเลือกรูป</p>
+                            </div>
+                        </div>
+
+                        <!-- Form Fields -->
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อ-สกุล <span
+                                        class="text-red-500">*</span></label>
+                                <input type="text" id="reg-name" placeholder="กรอกชื่อ-สกุล"
+                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-black focus:bg-white focus:ring-2 focus:ring-black/5 transition-all"
+                                    required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">รหัสประจำตัว <span
+                                        class="text-red-500">*</span></label>
+                                <input type="text" id="reg-code" placeholder="กรอกรหัสประจำตัว"
+                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-black focus:bg-white focus:ring-2 focus:ring-black/5 transition-all"
+                                    required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">แผนก <span
+                                        class="text-red-500">*</span></label>
+                                <input type="text" id="reg-dept" placeholder="กรอกแผนก"
+                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-black focus:bg-white focus:ring-2 focus:ring-black/5 transition-all"
+                                    required>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="register-btn"
+                            class="w-full bg-black text-white py-4 rounded-xl font-semibold hover:bg-gray-800 active:scale-[0.98] transition-all shadow-lg shadow-black/20">
+                            ลงทะเบียน
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Profile Section -->
+            <div id="profile-section" class="hidden animate-slide-up">
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <!-- Profile Header -->
+                    <div class="bg-gradient-to-r from-gray-900 to-gray-700 p-6">
+                        <div class="flex items-center gap-4">
+                            <img id="profile-image" src="" alt="Profile"
+                                class="w-20 h-20 rounded-xl object-cover border-4 border-white/20 shadow-lg">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm text-gray-300">ข้อมูลสมาชิก</p>
+                                <h2 id="profile-name" class="text-xl font-bold text-white truncate">-</h2>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Profile Info -->
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
+                                <div class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor"
+                                        stroke-width="2" viewBox="0 0 24 24">
+                                        <path
+                                            d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                                    </svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs text-gray-400">รหัสประจำตัว</p>
+                                    <p id="profile-code" class="text-sm font-semibold text-gray-900 truncate">-</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
+                                <div class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor"
+                                        stroke-width="2" viewBox="0 0 24 24">
+                                        <path
+                                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                    </svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs text-gray-400">แผนก</p>
+                                    <p id="profile-dept" class="text-sm font-semibold text-gray-900 truncate">-</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Edit Form (Hidden by default) -->
+                        <div id="edit-form-container" class="hidden mt-6 pt-6 border-t border-gray-100">
+                            <form id="edit-form" class="space-y-4">
+                                <input type="hidden" id="edit-id">
+                                <input type="hidden" id="edit-userID">
+                                <input type="hidden" id="edit-imageUrl-current">
+
+                                <div class="flex items-center gap-4 mb-4">
+                                    <div class="relative group">
+                                        <img id="edit-image-preview" src="" alt="Preview"
+                                            class="w-16 h-16 rounded-xl object-cover border-2 border-gray-200">
+                                        <label for="edit-image"
+                                            class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-xl opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
+                                                stroke-width="2" viewBox="0 0 24 24">
+                                                <path
+                                                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                                <path d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            </svg>
+                                        </label>
+                                        <input type="file" id="edit-image" accept="image/*" class="hidden">
+                                    </div>
+                                    <p class="text-sm text-gray-500">คลิกเพื่อเปลี่ยนรูป</p>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อ-สกุล</label>
+                                    <input type="text" id="edit-name"
+                                        class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-900 focus:outline-none focus:border-black focus:ring-2 focus:ring-black/5 transition-all">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">รหัสประจำตัว</label>
+                                    <input type="text" id="edit-code"
+                                        class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-900 focus:outline-none focus:border-black focus:ring-2 focus:ring-black/5 transition-all">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">แผนก</label>
+                                    <input type="text" id="edit-dept"
+                                        class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-900 focus:outline-none focus:border-black focus:ring-2 focus:ring-black/5 transition-all">
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="mt-6 flex gap-3">
+                            <button id="edit-btn" onclick="toggleEdit()"
+                                class="flex-1 bg-black text-white py-3.5 rounded-xl font-semibold hover:bg-gray-800 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewBox="0 0 24 24">
+                                    <path
+                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                                แก้ไขข้อมูล
+                            </button>
+                            <button id="save-btn" onclick="saveEdit()"
+                                class="flex-1 bg-black text-white py-3.5 rounded-xl font-semibold hover:bg-gray-800 active:scale-[0.98] transition-all hidden items-center justify-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewBox="0 0 24 24">
+                                    <path d="M5 13l4 4L19 7" />
+                                </svg>
+                                บันทึก
+                            </button>
+                            <button id="cancel-btn" onclick="cancelEdit()"
+                                class="flex-1 bg-gray-200 text-gray-700 py-3.5 rounded-xl font-semibold hover:bg-gray-300 active:scale-[0.98] transition-all hidden items-center justify-center gap-2">
+                                ยกเลิก
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // DEV MODE - ตั้งค่าเป็น true เพื่อทดสอบโดยไม่ต้องใช้ LIFF
+        // ============================================
+        const DEV_MODE = true;
+
+        // Mock Data สำหรับทดสอบ (DEV_MODE = true)
+        const DEV_USER = {
+            userId: 'U1234567890abcdef',
+            displayName: 'ทดสอบ นักพัฒนา',
+            pictureUrl: 'https://placehold.co/200x200/000000/FFFFFF?text=DEV'
+        };
+        // ============================================
+
+        // Configuration
+        const WEB_APP_URL = APP_CONFIG.WEB_APP_URL;
+        const LIFF_ID = APP_CONFIG.LIFF_ID.PROFILE;
+        const PLACEHOLDER_IMG = 'https://placehold.co/200x200/f3f4f6/9ca3af?text=P';
+        const DEFAULT_AVATAR = 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
+
+        let currentUserData = null;
+        let lineProfile = null;
+
+        // Utility Functions
+        function showLoading() { document.getElementById('loading-overlay').classList.remove('hidden'); }
+        function hideLoading() { document.getElementById('loading-overlay').classList.add('hidden'); }
+        function showSuccess(title, text) { return Swal.fire({ title, text, icon: 'success', confirmButtonText: 'ตกลง', confirmButtonColor: '#000000' }); }
+        function showError(title, text) { return Swal.fire({ title, text, icon: 'error', confirmButtonText: 'ตกลง', confirmButtonColor: '#000000' }); }
+        function getBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result.split(',')[1]); reader.onerror = error => reject(error); }); }
+
+        // Show Dev Mode Badge
+        function showDevBadge() {
+            const badge = document.createElement('div');
+            badge.className = 'fixed top-4 right-4 bg-yellow-400 text-black px-3 py-1.5 rounded-full text-xs font-bold shadow-lg z-50 flex items-center gap-1.5';
+            badge.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg> DEV MODE';
+            document.body.appendChild(badge);
+        }
+
+        // Initialize LIFF or Dev Mode
+        async function initializeLiff() {
+            try {
+                if (DEV_MODE) {
+                    // Dev Mode - ใช้ Mock Data แทน LIFF
+                    console.log('🚧 DEV MODE: LIFF ถูกปิดใช้งาน');
+                    showDevBadge();
+
+                    lineProfile = DEV_USER;
+
+                    // Update header
+                    document.getElementById('displayName').textContent = lineProfile.displayName;
+                    document.getElementById('userId').textContent = lineProfile.userId;
+                    document.getElementById('profileImage').src = lineProfile.pictureUrl;
+
+                    // Check registration
+                    await checkRegistration(lineProfile.userId);
+                    return;
+                }
+
+                // Production Mode - ใช้ LIFF จริง
+                await liff.init({ liffId: LIFF_ID });
+                if (!liff.isLoggedIn()) { liff.login(); return; }
+
+                lineProfile = await liff.getProfile();
+
+                // Update header
+                document.getElementById('displayName').textContent = lineProfile.displayName || 'User';
+                document.getElementById('userId').textContent = lineProfile.userId || '';
+                document.getElementById('profileImage').src = lineProfile.pictureUrl || PLACEHOLDER_IMG;
+
+                // Check if user is registered
+                await checkRegistration(lineProfile.userId);
+
+            } catch (error) {
+                console.error('LIFF Error:', error);
+                showError('เกิดข้อผิดพลาด', error.message);
+                hideLoading();
+            }
+        }
+
+        // Check if user is registered
+        async function checkRegistration(userId) {
+            try {
+                const response = await fetch(`${WEB_APP_URL}?method=getUserData&userlineId=${encodeURIComponent(userId)}`);
+                if (!response.ok) throw new Error('Network error');
+                const data = await response.json();
+
+                hideLoading();
+                document.getElementById('header-card').classList.remove('hidden');
+
+                if (Array.isArray(data) && data.length > 0) {
+                    // User is registered - show profile
+                    currentUserData = data[data.length - 1];
+                    showProfileSection();
+                } else {
+                    // User not registered - show registration form
+                    showRegisterSection();
+                }
+            } catch (error) {
+                console.error('Error checking registration:', error);
+                hideLoading();
+                showError('เกิดข้อผิดพลาด', 'ไม่สามารถตรวจสอบข้อมูลได้');
+            }
+        }
+
+        // Show Register Section
+        function showRegisterSection() {
+            document.getElementById('register-section').classList.remove('hidden');
+            document.getElementById('profile-section').classList.add('hidden');
+            document.getElementById('preview').src = PLACEHOLDER_IMG;
+        }
+
+        // Show Profile Section
+        function showProfileSection() {
+            document.getElementById('register-section').classList.add('hidden');
+            document.getElementById('profile-section').classList.remove('hidden');
+
+            if (currentUserData) {
+                document.getElementById('profile-name').textContent = currentUserData.nameId || '-';
+                document.getElementById('profile-code').textContent = currentUserData.keynumberId || '-';
+                document.getElementById('profile-dept').textContent = currentUserData.keynumber2Id || '-';
+                document.getElementById('profile-image').src = currentUserData.fileLink || PLACEHOLDER_IMG;
+
+                // Setup edit form
+                document.getElementById('edit-id').value = currentUserData.keyid || '';
+                document.getElementById('edit-userID').value = currentUserData.userlineId || '';
+                document.getElementById('edit-imageUrl-current').value = currentUserData.fileLink || '';
+                document.getElementById('edit-name').value = currentUserData.nameId || '';
+                document.getElementById('edit-code').value = currentUserData.keynumberId || '';
+                document.getElementById('edit-dept').value = currentUserData.keynumber2Id || '';
+                document.getElementById('edit-image-preview').src = currentUserData.fileLink || PLACEHOLDER_IMG;
+            }
+        }
+
+        // Toggle Edit Mode
+        function toggleEdit() {
+            document.getElementById('edit-form-container').classList.remove('hidden');
+            document.getElementById('edit-btn').classList.add('hidden');
+            document.getElementById('save-btn').classList.remove('hidden');
+            document.getElementById('save-btn').classList.add('flex');
+            document.getElementById('cancel-btn').classList.remove('hidden');
+            document.getElementById('cancel-btn').classList.add('flex');
+        }
+
+        // Cancel Edit
+        function cancelEdit() {
+            document.getElementById('edit-form-container').classList.add('hidden');
+            document.getElementById('edit-btn').classList.remove('hidden');
+            document.getElementById('save-btn').classList.add('hidden');
+            document.getElementById('cancel-btn').classList.add('hidden');
+
+            // Reset form
+            if (currentUserData) {
+                document.getElementById('edit-name').value = currentUserData.nameId || '';
+                document.getElementById('edit-code').value = currentUserData.keynumberId || '';
+                document.getElementById('edit-dept').value = currentUserData.keynumber2Id || '';
+                document.getElementById('edit-image-preview').src = currentUserData.fileLink || PLACEHOLDER_IMG;
+            }
+        }
+
+        // Save Edit
+        async function saveEdit() {
+            const saveBtn = document.getElementById('save-btn');
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>';
+
+            try {
+                const imageFile = document.getElementById('edit-image').files[0];
+                let imageUrl = document.getElementById('edit-imageUrl-current').value;
+
+                if (imageFile) {
+                    imageUrl = await getBase64(imageFile);
+                }
+
+                const formData = new URLSearchParams();
+                formData.append('method', 'updateData');
+                formData.append('id', document.getElementById('edit-id').value);
+                formData.append('userID', document.getElementById('edit-userID').value);
+                formData.append('name', document.getElementById('edit-name').value);
+                formData.append('employeeID', document.getElementById('edit-code').value);
+                formData.append('department', document.getElementById('edit-dept').value);
+                formData.append('imageUrl', imageUrl);
+
+                const response = await fetch(WEB_APP_URL, { method: 'POST', body: formData });
+                const result = await response.text();
+
+                if (result.toLowerCase().includes('updated') || result.toLowerCase().includes('success')) {
+                    await showSuccess('สำเร็จ', 'บันทึกข้อมูลเรียบร้อยแล้ว');
+                    await checkRegistration(lineProfile.userId);
+                    cancelEdit();
+                } else {
+                    throw new Error(result);
+                }
+            } catch (error) {
+                console.error('Error saving:', error);
+                showError('เกิดข้อผิดพลาด', 'ไม่สามารถบันทึกข้อมูลได้');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>บันทึก';
+            }
+        }
+
+        // Register Form Submit
+        document.getElementById('register-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('register-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto"></div>';
+
+            try {
+                const fileInput = document.getElementById('file');
+                let base64, type, name;
+
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    base64 = await getBase64(file);
+                    type = file.type;
+                    name = file.name;
+                } else {
+                    const response = await fetch(DEFAULT_AVATAR);
+                    const blob = await response.blob();
+                    base64 = await getBase64(blob);
+                    type = 'image/png';
+                    name = 'Avatar.png';
+                }
+
+                const obj = {
+                    base64: base64,
+                    type: type,
+                    name: name,
+                    userlineId: lineProfile.userId,
+                    nameId: document.getElementById('reg-name').value,
+                    keynumberId: document.getElementById('reg-code').value,
+                    keynumber2Id: document.getElementById('reg-dept').value
+                };
+
+                const response = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(obj) });
+                const result = await response.text();
+
+                await showSuccess('ลงทะเบียนสำเร็จ', 'ยินดีต้อนรับเข้าสู่ระบบ!');
+                await checkRegistration(lineProfile.userId);
+
+            } catch (error) {
+                console.error('Error registering:', error);
+                showError('เกิดข้อผิดพลาด', 'ไม่สามารถลงทะเบียนได้');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'ลงทะเบียน';
+            }
+        });
+
+        // Preview Images
+        document.getElementById('file').addEventListener('change', function () {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => document.getElementById('preview').src = e.target.result;
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+
+        document.getElementById('edit-image').addEventListener('change', function () {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => document.getElementById('edit-image-preview').src = e.target.result;
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+
+        // Initialize
+        window.onload = initializeLiff;
+    </script>
+</body>
+
+</html>
