@@ -1,8 +1,8 @@
 // ====================================================================================
 // การตั้งค่าหลัก (Configuration)
 // ====================================================================================
-var SPREADSHEET_ID = '1g7uhBnYkpmCXt5Dkf89qIus86CrHkIZK0b6yw1T2pp8';
-var DRIVE_FOLDER_ID = '1zCDYqKso6U-T69wWqDwm5KI6_Ds8BzVs';
+var SPREADSHEET_ID = 'XXXXXXXXXXXXXXXXXXXXX';
+var DRIVE_FOLDER_ID = 'XXXXXXXXXXXXXXXXXXXX';
 var SHEET_NAME_MEMBER = 'Member';
 
 // ====================================================================================
